@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const {enums} = require("../utils/constant")
+const {enums} = require('../utils/constant')
 
 const draftSchema = new mongoose.Schema({
   userId: {
@@ -7,18 +7,20 @@ const draftSchema = new mongoose.Schema({
     ref: 'User'
   },
 
-  emailId: String,
+  messageId: String,
   threadId: String,
-  subject: String,
 
-  emailBody: String,
+  subject: String,
+  from: String,
+
+  context: String, 
 
   suggestedReply: String,
   finalReply: String,
 
   status: {
     type: String,
-    enum: [enums.pending, enums.approved, enums.rejected],
+    enum: [enums.pending, enums.generated, enums.approved, enums.rejected,],
     default: enums.pending
   }
 

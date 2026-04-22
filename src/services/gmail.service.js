@@ -2,62 +2,102 @@ const { google } = require('googleapis')
 const { getOAuthClient } = require('../config/gmail')
 const { decrypt } = require('../utils/crypto')
 const userRepo = require('../repositories/user.repository')
+const draftRepo = require('../repositories/draft.repository')
+const aiService = require('./ai.service')
+
+const extractBody = (payload) => {
+  let body = ''
+
+  if (payload.parts) {
+    for (const part of payload.parts) {
+      if (part.mimeType === 'text/plain' && part.body?.data) {
+        body = Buffer.from(part.body.data, 'base64').toString('utf-8')
+        break
+      }
+    }
+  } else if (payload.body?.data) {
+    body = Buffer.from(payload.body.data, 'base64').toString('utf-8')
+  }
+
+  return body
+}
+
+const getHeader = (headers, name) => {
+  return headers.find(h => h.name === name)?.value
+}
 
 const getUnreadEmails = async (userId) => {
   const user = await userRepo.findById(userId)
 
-  if (!user || !user.google?.accessToken) {
-    throw new Error('User not connected to Gmail')
-  }
-
   const client = getOAuthClient()
 
-  // 🔓 Decrypt tokens
-  const accessToken = decrypt(user.google.accessToken)
-  const refreshToken = user.google.refreshToken
-    ? decrypt(user.google.refreshToken)
-    : null
-
   client.setCredentials({
-    access_token: accessToken,
-    refresh_token: refreshToken
+    access_token: decrypt(user.google.accessToken),
+    refresh_token: decrypt(user.google.refreshToken)
   })
 
   const gmail = google.gmail({ version: 'v1', auth: client })
 
-  // 📥 Get unread messages
   const res = await gmail.users.messages.list({
     userId: 'me',
     q: 'is:unread',
-    maxResults: 10
+    maxResults: 5
   })
 
   const messages = res.data.messages || []
 
-  // 📄 Fetch full details
-  const emailDetails = await Promise.all(
+  const results = await Promise.all(
     messages.map(async (msg) => {
-      const mail = await gmail.users.messages.get({
+
+      // GET THREAD
+      const thread = await gmail.users.threads.get({
         userId: 'me',
-        id: msg.id
+        id: msg.threadId
       })
 
-      const headers = mail.data.payload.headers
+      // BUILD CONTEXT
+      const context = thread.data.messages.map(m => {
+        const headers = m.payload.headers
+        const from = getHeader(headers, 'From')
+        const body = extractBody(m.payload)
 
-      const getHeader = (name) =>
-        headers.find(h => h.name === name)?.value
+        return `From: ${from}\n${body}`
+      }).join('\n\n---\n\n')
 
-      return {
-        id: msg.id,
+      const headers = thread.data.messages[0].payload.headers
+
+      //  CREATE DRAFT
+      let draft = await draftRepo.createDraft({
+        userId,
+        messageId: msg.id,
         threadId: msg.threadId,
-        subject: getHeader('Subject'),
-        from: getHeader('From'),
-        snippet: mail.data.snippet
-      }
+        subject: getHeader(headers, 'Subject'),
+        from: getHeader(headers, 'From'),
+        context
+      })
+
+      // USER STYLE
+      const tone = user.style?.tone || 'professional'
+      const signature = user.style?.signature || ''
+
+      // AI GENERATION
+      const reply = await aiService.generateEmailReply({
+        context,
+        tone,
+        signature
+      })
+
+      // UPDATE DRAFT
+      draft = await draftRepo.updateDraft(draft._id, {
+        suggestedReply: reply,
+        status: 'GENERATED'
+      })
+
+      return draft
     })
   )
 
-  return emailDetails
+  return results
 }
 
 module.exports = {

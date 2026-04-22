@@ -1,5 +1,6 @@
 const enums = {
   pending: 'pending',
+  generated: 'generated',
   approved: 'approved',
   rejected: 'rejected'
 }
