@@ -2,6 +2,7 @@ const { google } = require('googleapis')
 const { getOAuthClient } = require('../config/gmail')
 const userRepo = require('../repositories/user.repository')
 const { encrypt } = require('../utils/crypto')
+const { generateToken } = require('../jsonWebtoken/jwt')
 
 const generateAuthUrl = () => {
   const client = getOAuthClient()
@@ -33,16 +34,14 @@ const handleOAuthCallback = async (code) => {
   // 🔥 Step 2: Set credentials
   client.setCredentials(tokens)
 
-  console.log('CREDENTIALS:', client.credentials)
-
-  // 🔥 Step 3: Fetch user info (FIXED WAY)
+  // 🔥 Step 3: Fetch user info
   const userInfoResponse = await client.request({
     url: 'https://www.googleapis.com/oauth2/v2/userinfo'
   })
 
   const data = userInfoResponse.data
 
-  // 🔥 Step 4: Save / update user
+  // 🔥 Step 4: Find or create user
   let user = await userRepo.findByEmail(data.email)
 
   if (!user) {
@@ -52,6 +51,7 @@ const handleOAuthCallback = async (code) => {
     })
   }
 
+  // 🔥 Step 5: Save tokens
   const updateData = {
     'google.accessToken': encrypt(tokens.access_token),
     'google.expiryDate': tokens.expiry_date
@@ -63,7 +63,16 @@ const handleOAuthCallback = async (code) => {
 
   user = await userRepo.updateUserTokens(user._id, updateData)
 
-  return user
+  // 🔥 Step 6: Generate JWT
+  const token = generateToken({
+    userId: user._id
+  })
+
+  // 🔥 Step 7: Return BOTH user + token
+  return {
+    user,
+    token
+  }
 }
 
 module.exports = {

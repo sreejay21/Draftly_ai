@@ -3,7 +3,7 @@ const response = require('../utils/responseHandler')
 
 const getUserDrafts = async (req, res) => {
   try {
-    const drafts = await draftRepo.findByUser("69de37979c332d151e557183")
+    const drafts = await draftRepo.findByUser(req.userId)
     return response.Ok(drafts, res)
   } catch (err) {
     return response.internalServerError(res, err.message)

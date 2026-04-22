@@ -1,12 +1,12 @@
 const authService = require('../services/auth.service')
-const responseHandler = require('../utils/responseHandler')
+const response = require('../utils/responseHandler')
 
-const googleLogin = async (req, res) => {
+const googleLogin = (req, res) => {
   try {
     const url = authService.generateAuthUrl()
-    return res.redirect(url)
+    return response.Ok({ url }, res)
   } catch (err) {
-    return responseHandler.internalServerError(res, err.message)
+    return response.internalServerError(res, err.message)
   }
 }
 
@@ -14,15 +14,12 @@ const googleCallback = async (req, res) => {
   try {
     const { code } = req.query
 
-    if (!code) {
-      return responseHandler.badRequest(res)
-    }
+    const result = await authService.handleOAuthCallback(code)
 
-    const user = await authService.handleOAuthCallback(code)
-
-    return responseHandler.Ok(user, res)
+    return response.Ok(result, res)
   } catch (err) {
-    return responseHandler.internalServerError(res, err.message)
+    console.error(err)
+    return response.internalServerError(res, err.message)
   }
 }
 

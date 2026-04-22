@@ -3,7 +3,7 @@ const response = require('../utils/responseHandler')
 
 const getUnreadEmails = async (req, res) => {
   try {
-    const data = await gmailService.getUnreadEmails("69de37979c332d151e557183")
+    const data = await gmailService.getUnreadEmails(req.userId)
     return response.Ok(data, res)
   } catch (err) {
     console.error(err)
