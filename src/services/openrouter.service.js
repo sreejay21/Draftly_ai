@@ -5,7 +5,7 @@ const generateReplyFromAI = async (prompt) => {
     const response = await axios.post(
       'https://openrouter.ai/api/v1',
       {
-        model: 'openai/gpt-4o-mini', // fast + cheap
+        model: 'openai/gpt-4o-mini', 
         messages: [
           {
             role: 'system',
