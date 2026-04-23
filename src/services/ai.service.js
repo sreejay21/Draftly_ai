@@ -1,17 +1,17 @@
-const generateEmailReply = async ({ context, tone, signature }) => {
-  // 🔥 MOCK AI (replace later with OpenRouter)
+const { buildEmailReplyPrompt } = require('../prompts/emailReply.prompt')
+const openrouter = require('./openrouter.service')
 
-  return `
-Hi,
+const generateEmailReply = async ({ context, tone, signature, styleContext }) => {
+  const prompt = buildEmailReplyPrompt({
+    context,
+    tone,
+    signature,
+    styleContext
+  })
 
-Based on the conversation below:
+  const reply = await openrouter.generateReplyFromAI(prompt)
 
-${context}
-
-This is a ${tone} response.
-
-${signature}
-`
+  return reply
 }
 
 module.exports = {

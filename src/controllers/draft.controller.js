@@ -1,5 +1,6 @@
 const draftRepo = require('../repositories/draft.repository')
 const response = require('../utils/responseHandler')
+const {enums} = require('../utils/constant')
 
 const getUserDrafts = async (req, res) => {
   try {
@@ -13,7 +14,7 @@ const getUserDrafts = async (req, res) => {
 const approveDraft = async (req, res) => {
   try {
     const draft = await draftRepo.updateDraft(req.params.draftId, {
-      status: 'APPROVED',
+      status: enums.DraftStatus.APPROVED,
       finalReply: req.body.finalReply
     })
     return response.Ok(draft, res)
@@ -25,7 +26,7 @@ const approveDraft = async (req, res) => {
 const rejectDraft = async (req, res) => {
   try {
     const draft = await draftRepo.updateDraft(req.params.draftId, {
-      status: 'REJECTED'
+      status: enums.DraftStatus.REJECTED
     })
     return response.Ok(draft, res)
   } catch (err) {
