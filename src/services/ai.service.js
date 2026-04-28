@@ -9,9 +9,22 @@ const generateEmailReply = async ({ context, tone, signature, styleContext }) =>
     styleContext
   })
 
-  const reply = await openrouter.generateReplyFromAI(prompt)
+  const raw = await openrouter.generateReplyFromAI(prompt)
 
-  return reply
+  let parsed
+
+  try {
+    parsed = JSON.parse(raw)
+  } catch (err) {
+    console.error('AI returned invalid JSON:', raw)
+    return {
+      type: 'SKIP',
+      relevance: 0,
+      reason: 'Invalid AI response'
+    }
+  }
+
+  return parsed
 }
 
 module.exports = {

@@ -15,7 +15,6 @@ const googleCallback = async (req, res) => {
     const { code } = req.query
 
     const result = await authService.handleOAuthCallback(code)
-
     return response.Ok(result, res)
   } catch (err) {
     console.error(err)
