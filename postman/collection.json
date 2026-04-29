@@ -1,0 +1,170 @@
+{
+  "info": {
+    "name": "Draftly AI API",
+    "description": "Postman collection for Draftly AI API - Email management with AI-powered drafting",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/health"
+      }
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Google Login - Initiate OAuth",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/auth/google",
+            "description": "Redirects user to Google OAuth login page. Returns a URL that should be visited to authenticate."
+          }
+        },
+        {
+          "name": "Google Callback - Handle OAuth",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/callback?code={{code}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "callback"],
+              "query": [
+                {
+                  "key": "code",
+                  "value": "{{code}}",
+                  "description": "Authorization code from Google OAuth"
+                }
+              ]
+            },
+            "description": "Handle Google OAuth callback. The code is received from Google after successful authentication."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Gmail",
+      "item": [
+        {
+          "name": "Get Unread Emails",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/gmail/unread",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "description": "Retrieve all unread emails from the authenticated user's Gmail account. Requires authentication token."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Drafts",
+      "item": [
+        {
+          "name": "Get User Drafts",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/api/drafts/",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "description": "Get all drafts created by the authenticated user."
+          }
+        },
+        {
+          "name": "Approve Draft",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/drafts/approve/:draftId",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "description": "Approve a draft. This action typically sends the email.",
+            "variable": [
+              {
+                "key": "draftId",
+                "value": "",
+                "description": "ID of the draft to approve"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Reject Draft",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/drafts/reject/:draftId",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "description": "Reject a draft. This action typically deletes or archives the draft.",
+            "variable": [
+              {
+                "key": "draftId",
+                "value": "",
+                "description": "ID of the draft to reject"
+              }
+            ]
+          }
+        },
+        {
+          "name": "Edit Draft",
+          "request": {
+            "method": "PUT",
+            "url": "{{baseUrl}}/api/drafts/edit/:draftId",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "description": "Edit a draft. Allows modifying the draft content before approval.",
+            "variable": [
+              {
+                "key": "draftId",
+                "value": "",
+                "description": "ID of the draft to edit"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"subject\": \"Updated Subject\",\n  \"body\": \"Updated email body content\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
