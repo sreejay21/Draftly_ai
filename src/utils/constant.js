@@ -2,8 +2,11 @@ const enums = {
   pending: 'pending',
   generated: 'generated',
   approved: 'approved',
-  rejected: 'rejected'
+  rejected: 'rejected',
+  sent: 'sent'
 }
+
+
 
 const ErrorMessages = {
   DRAFT_NOT_FOUND: 'Draft not found',

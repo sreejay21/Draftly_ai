@@ -11,9 +11,13 @@ const updateDraft = async (id, update) => {
 const findByUser = async (userId) => {
   return await Draft.find({ userId }).sort({ createdAt: -1 })
 }
+const findById = async (id) => {
+  return await Draft.findById(id)
+}
 
 module.exports = {
   createDraft,
   updateDraft,
-  findByUser
+  findByUser,
+  findById
 }

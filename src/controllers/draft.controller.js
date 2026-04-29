@@ -21,14 +21,14 @@ const approveDraft = async (req, res) => {
       return response.badRequest(res, ErrorMessages.DRAFT_NOT_FOUND)
     }
 
-    if (draft.status === enums.DraftStatus.SENT) {
+    if (draft.status === enums.sent) {
       return response.badRequest(res, ErrorMessages.ALREADY_SENT)
     }
 
     // Update draft
     const updatedDraft = await draftRepo.updateDraft(draftId, {
-      status: enums.DraftStatus.APPROVED,
-      finalReply: req.body.finalReply || draft.suggestedReply
+      status: enums.approved,
+      finalReply: draft.suggestedReply
     })
     await queueSendEmail(draftId)
 
@@ -45,7 +45,7 @@ const approveDraft = async (req, res) => {
 const rejectDraft = async (req, res) => {
   try {
     const draft = await draftRepo.updateDraft(req.params.draftId, {
-      status: enums.DraftStatus.REJECTED
+      status: enums.rejected
     })
     return response.Ok(draft, res)
   } catch (err) {
