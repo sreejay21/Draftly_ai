@@ -1,5 +1,5 @@
-const { buildEmailReplyPrompt } = require('../prompts/emailReply.prompt')
-const openrouter = require('./openrouter.service')
+const { buildEmailReplyPrompt } = require('../../prompts/emailReply.prompt')
+const openrouter = require('../openrouter.service')
 
 const generateEmailReply = async ({ context, tone, signature, styleContext }) => {
   const prompt = buildEmailReplyPrompt({

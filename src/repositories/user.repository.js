@@ -20,9 +20,24 @@ const updateUserTokens = async (userId, updateData) => {
   )
 }
 
+const getUsersWithTokens = async () => {
+  try {
+    const users = await User.find({
+      "google.accessToken": { $exists: true, $ne: null },
+      "google.refreshToken": { $exists: true, $ne: null }
+    });
+
+    return users;
+  } catch (err) {
+    console.error("Error fetching users with tokens:", err.message);
+    throw err;
+  }
+};
+
 module.exports = {
   findById,
   findByEmail,
   createUser,
+  getUsersWithTokens,
   updateUserTokens
 }

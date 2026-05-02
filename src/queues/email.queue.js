@@ -1,8 +1,8 @@
-const { Queue } = require('bullmq')
-const { connection } = require('../config/redis')
+const { Queue } = require("bullmq");
+const { connection } = require("../config/redis");
 
-const sendQueue = new Queue('email-sending', { connection })
+const sendQueue = new Queue("email-sending", {
+  connection,
+});
 
-module.exports = {
-  sendQueue
-}
+module.exports = { sendQueue };
