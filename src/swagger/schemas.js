@@ -1,12 +1,15 @@
 const { successResponse, errorResponse } = require('./swaggerSchemas/common.schema')
-const { googleAuthResponse } = require('./swaggerSchemas/auth.schema')
-const { draftResponse } = require('./swaggerSchemas/draft.schema')
+const { googleAuthResponse, userInfoResponse } = require('./swaggerSchemas/auth.schema')
+const { draftResponse, draftListResponse, unreadEmailsResponse } = require('./swaggerSchemas/draft.schema')
 
 const schemas = {
   successResponse,
   errorResponse,
   googleAuthResponse,
-  draftResponse
+  userInfoResponse,
+  draftResponse,
+  draftListResponse,
+  unreadEmailsResponse
 }
 
 module.exports = schemas

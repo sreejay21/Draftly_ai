@@ -15,9 +15,20 @@ const findById = async (id) => {
   return await Draft.findById(id)
 }
 
+const isDraftExists = async (messageId) => {
+  return await Draft.exists({ messageId })
+}
+
+const saveDraft = async (data) => {
+  return await Draft.create(data)
+}
+
+
 module.exports = {
   createDraft,
   updateDraft,
   findByUser,
-  findById
+  findById,
+  isDraftExists,
+  saveDraft
 }

@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const controller = require('../controllers/auth.controller')
+const authMiddleware = require('../middleware/auth.middleware')
 
 /**
  * @swagger
@@ -27,6 +28,37 @@ const controller = require('../controllers/auth.controller')
  *               $ref: '#/components/schemas/errorResponse'
  */
 router.get('/google', controller.googleLogin)
+
+/**
+ * @swagger
+ * /api/auth/me:
+ *   get:
+ *     summary: Get authenticated user profile
+ *     description: Returns the current authenticated user's basic profile information.
+ *     tags: [Auth]
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Authenticated user profile
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/userInfoResponse'
+ *       401:
+ *         description: Unauthorized
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/errorResponse'
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/errorResponse'
+ */
+router.get('/me', authMiddleware, controller.getMe)
 
 /**
  * @swagger

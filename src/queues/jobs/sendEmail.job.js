@@ -1,20 +1,19 @@
-const { sendQueue } = require('../email.queue')
+const { sendQueue } = require("../email.queue");
 
-const queueSendEmail = async (draftId) => {
-  return await sendQueue.add(
-    'send-email',
+const queueSendEmail = async ({ draftId, priority = 1 }) => {
+  return sendQueue.add(
+    "send-email",
     { draftId },
     {
       attempts: 3,
       backoff: {
-        type: 'exponential',
-        delay: 5000
+        type: "exponential",
+        delay: 5000,
       },
-      removeOnComplete: true
+      priority,
+      removeOnComplete: true,
     }
-  )
-}
+  );
+};
 
-module.exports = {
-  queueSendEmail
-}
+module.exports = { queueSendEmail };
