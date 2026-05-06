@@ -1,4 +1,4 @@
-require('dotenv').config({ path: '../.env' });
+require('dotenv').config({ path: '../../.env' });
 
 const { Worker } = require("bullmq");
 const { connection } = require("../config/redis");

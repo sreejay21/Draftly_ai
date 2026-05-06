@@ -80,7 +80,7 @@
   const editDraft = async (req, res) => {
     try {
       const draft = await draftRepo.updateDraft(req.params.draftId, {
-        suggestedReply: req.body.reply
+        suggestedReply: req.body.body,
       })
       return response.Ok(draft, res)
     } catch (err) {
